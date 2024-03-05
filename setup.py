@@ -15,12 +15,12 @@ setup(
     name="priority-search-tree",
     version="0.0.0",
     license="LGPL-3.0-or-later",
-    description="An example package. Generated with cookiecutter-pylibrary.",
+    description="Priority search tree data structure",
     long_description="{}\n{}".format(
         re.compile("^.. start-badges.*^.. end-badges", re.M | re.S).sub("", read("README.rst")),
         re.sub(":[a-z]+:`~?(.*?)`", r"``\1``", read("CHANGELOG.rst")),
     ),
-    author="Priority Search Tree",
+    author="Valentin Yusin",
     author_email="yusinv@gmail.com",
     url="https://github.com/yusinv/priority-search-tree",
     packages=find_packages("src"),
@@ -30,8 +30,9 @@ setup(
     zip_safe=False,
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
-        "Development Status :: 1 - Planning",
+        "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
+        "Intended Audience :: Education",
         "License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)",
         "Operating System :: Unix",
         "Operating System :: POSIX",
@@ -50,7 +51,7 @@ setup(
         # "Programming Language :: Python :: Implementation :: IronPython",
         # "Programming Language :: Python :: Implementation :: Jython",
         # "Programming Language :: Python :: Implementation :: Stackless",
-        "Topic :: Utilities",
+        "Topic :: Software Development :: Libraries",
     ],
     project_urls={
         "Documentation": "https://priority-search-tree.readthedocs.io/",

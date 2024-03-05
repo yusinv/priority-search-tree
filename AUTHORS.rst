@@ -2,4 +2,4 @@
 Authors
 =======
 
-* Priority Search Tree - https://blog.ionelmc.ro
+* Priority Search Tree

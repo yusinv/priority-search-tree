@@ -17,7 +17,7 @@ Overview
     :target: https://readthedocs.org/projects/priority-search-tree/
     :alt: Documentation Status
 
-.. |github-actions| image:: https://github.com/yusinv/priority-search-tree/actions/workflows/github-actions.yml/badge.svg
+.. |github-actions| image:: https://github.com/yusinv/priority-search-tree/actions/workflows/build.yml/badge.svg
     :alt: GitHub Actions Build Status
     :target: https://github.com/yusinv/priority-search-tree/actions
 
@@ -49,7 +49,7 @@ Overview
 
 .. end-badges
 
-An example package. Generated with cookiecutter-pylibrary.
+The priority search tree is data structure that used to store a set of 2-dimensional points ordered by priority and by a key value. This is accomplished by creating a hybrid of a priority queue and a binary search tree.
 
 * Free software: GNU Lesser General Public License v3 or later (LGPLv3+)
 
