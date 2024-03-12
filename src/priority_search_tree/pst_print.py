@@ -11,7 +11,7 @@ class _Style(Enum):
     STRIKETHROUGH_RED = "\033[31;9m"
     RESET = "\033[0m"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
 
 
@@ -33,7 +33,7 @@ def node_repr(node: Node) -> str:
         return f"{style}{node.tree_value}:{node.heap_value}{_Style.RESET}"
 
 
-def tree_repr(tree: PrioritySearchTree, indent_width=4) -> str:
+def tree_repr(tree: PrioritySearchTree, indent_width: int = 4) -> str:
     def _tree_repr(node, indent, symbol) -> []:
         result = []
         if node and node != Node.NULL_NODE:
