@@ -28,5 +28,4 @@ class Node:
         self.right = right_node
 
 
-if Node.NULL_NODE is None:
-    Node.NULL_NODE = Node(color=0, placeholder=True)
+Node.NULL_NODE = Node(color=0, placeholder=True)

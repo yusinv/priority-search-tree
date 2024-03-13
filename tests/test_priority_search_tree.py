@@ -13,7 +13,7 @@ def test_empty_pst():
     pst = PrioritySearchTree()
     result = pst.query((0, 0), (1, 2), (1, 1))
     assert len(result) == 0
-    with pytest.raises(ValueError, match="value not found:"):
+    with pytest.raises(ValueError, match="Value not found:"):
         pst.remove((1, 1))
     pst.add((1, 1))
     result = pst.query((0, 0), (2, 0), (0, 0))
@@ -24,6 +24,7 @@ def test_empty_pst():
     assert len(result) == 0
     with pytest.raises(IndexError):
         pst.heap_pop()
+    pst = PrioritySearchTree([])
     with pytest.raises(IndexError):
         pst.heap_get_max()
 
@@ -91,3 +92,52 @@ def test_query():
 
 def test_stress_tester():
     stress_test()
+
+
+def test_unique_tree_key():
+    pst = PrioritySearchTree()
+    pst.add((1, 1))
+    with pytest.raises(ValueError, match="Value with tree_key:"):
+        pst.add((1, 1))
+    with pytest.raises(ValueError, match="More than one item with tree_key:"):
+        PrioritySearchTree([(1, 1), (1, 1)])
+
+
+def test_custom_keys():
+    class Point:
+        def __init__(self, x: int, y: int):
+            self.x: int = x
+            self.y: int = y
+
+    items = [Point(1, 1), Point(2, 2), Point(3, 3), Point(4, 4), Point(5, 6), Point(6, 6)]
+
+    pst = PrioritySearchTree(items, tree_key=lambda v: v.x, heap_key=lambda v: v.y)
+    assert_rb_tree(pst._root)
+
+    assert pst.query(Point(1, 1), Point(2, 2), Point(2, 2)) == [items[1]]
+    assert pst.query(Point(1, 1), Point(5, 1), Point(1, 6)) == [items[4]]
+
+    # same value object
+    pst.remove(items[2])
+
+    # same tree_key same hash_key
+    pst.remove(Point(2, 2))
+
+    # same tree_key different hash_key
+    with pytest.raises(ValueError, match="Value not found:"):
+        pst.remove(Point(4, 1))
+
+    # different tree_key same hash_key
+    with pytest.raises(ValueError, match="Value not found:"):
+        pst.remove(Point(7, 1))
+
+    # different tree_key different hash_key
+    with pytest.raises(ValueError, match="Value not found:"):
+        pst.remove(Point(7, 7))
+
+    assert_rb_tree(pst._root)
+
+    assert pst.heap_pop().y == 6
+    assert pst.heap_pop().y == 6
+    assert pst.heap_pop().y == 4
+    assert pst.heap_pop().y == 1

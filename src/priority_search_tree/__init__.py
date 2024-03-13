@@ -6,7 +6,7 @@ from typing import Iterable
 from typing import Optional
 from typing import TypeVar
 
-from priority_search_tree.pst_node import Node
+from .pst_node import Node
 
 _V = TypeVar("_V")
 _SupportsRichComparisonT = TypeVar("_SupportsRichComparisonT")
@@ -68,8 +68,15 @@ class PrioritySearchTree:
         self.tree_key = tree_key
         self.heap_key = heap_key
 
-        if iterable is not None:
+        if iterable:
             sn = sorted(iterable, key=self.tree_key)
+
+            current_key = self.tree_key(sn[0])
+            for next_key in map(self.tree_key, sn[1:]):
+                if current_key == next_key:
+                    raise ValueError(f"More than one item with tree_key:{current_key}")
+                current_key = next_key
+
             sn_len = len(sn)
             sn_iter = iter(sn)
             tree_nodes = []
@@ -131,12 +138,16 @@ class PrioritySearchTree:
             self._root = Node(heap_value=value, tree_value=value, color=0)
             return
 
+        value_tree_key = self.tree_key(value)
+
         prev = None
         node = self._root
         while node != Node.NULL_NODE:
             prev = node
-            if self.tree_key(value) < self.tree_key(node.tree_value):
+            if value_tree_key < self.tree_key(node.tree_value):
                 node = node.left
+            elif value_tree_key == self.tree_key(node.tree_value):
+                raise ValueError(f"Value with tree_key:{value_tree_key} already in tree")
             else:
                 node = node.right
 
@@ -153,7 +164,7 @@ class PrioritySearchTree:
             self._root = new_internal_node
             new_internal_node.color = 0
 
-        if self.tree_key(value) < self.tree_key(prev.tree_value):
+        if value_tree_key < self.tree_key(prev.tree_value):
             new_internal_node.tree_value = prev.tree_value
             new_internal_node.set_right(prev)
             new_internal_node.set_left(new_leaf_node)
@@ -171,23 +182,25 @@ class PrioritySearchTree:
 
     def remove(self, value: _V) -> None:
         node = self._root
+        value_tree_key = self.tree_key(value)
+        value_heap_key = self.heap_key(value)
         heap_node = None
         tree_node = None
         leaf_node = None
 
         while node != Node.NULL_NODE:
             leaf_node = node
-            if heap_node is None and node.heap_value == value:
+            if heap_node is None and self.tree_key(node.heap_value) == value_tree_key and self.heap_key(node.heap_value) == value_heap_key:
                 heap_node = node
-            if tree_node is None and node.tree_value == value:
+            if tree_node is None and self.tree_key(node.tree_value) == value_tree_key:
                 tree_node = node
-            if self.tree_key(value) < self.tree_key(node.tree_value):
+            if value_tree_key < self.tree_key(node.tree_value):
                 node = node.left
             else:
                 node = node.right
 
         if heap_node is None:
-            raise ValueError(f"value not found:{value}")
+            raise ValueError(f"Value not found:{value}")
 
         if leaf_node == self._root:
             self._root = Node.NULL_NODE

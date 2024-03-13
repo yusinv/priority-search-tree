@@ -57,8 +57,8 @@ def stress_test():
         print(f"iter {cycle} processed. items {len(items)} in tree")
 
 
-if __name__ == "__main__":
-    ITEM_LIMITS = 100000
-    NUM_OF_ITEMS = 10000
-    NUM_OF_CYCLES = 5000
-    stress_test()
+# if __name__ == "__main__":
+#     ITEM_LIMITS = 100000
+#     NUM_OF_ITEMS = 10000
+#     NUM_OF_CYCLES = 5000
+#     stress_test()
