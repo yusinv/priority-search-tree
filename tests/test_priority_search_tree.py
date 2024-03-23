@@ -11,20 +11,25 @@ from utils import assert_rb_tree
 
 def test_empty_pst():
     pst = PrioritySearchTree()
+    assert not pst
     result = pst.query((0, 0), (1, 2), (1, 1))
     assert len(result) == 0
     with pytest.raises(ValueError, match="Value not found:"):
         pst.remove((1, 1))
     pst.add((1, 1))
+    assert len(pst) == 1
     result = pst.query((0, 0), (2, 0), (0, 0))
     assert len(result) == 1
+    assert pst
     assert result[0] == (1, 1)
     pst.remove((1, 1))
+    assert len(pst) == 0
     result = pst.query((0, 0), (2, 0), (0, 0))
     assert len(result) == 0
     with pytest.raises(IndexError):
         pst.heap_pop()
     pst = PrioritySearchTree([])
+    assert len(pst) == 0
     with pytest.raises(IndexError):
         pst.heap_get_max()
 
@@ -64,14 +69,15 @@ def test_heap_get_max():
 
 def test_large_pst():
     pst = PrioritySearchTree(LARGE_PST_INITIAL_DATA)
+    assert len(pst) == len(LARGE_PST_INITIAL_DATA)
     for itm in LARGE_PST_ADD_DATA:
         pst.add(itm)
         assert_rb_tree(pst._root)
-
+    assert len(pst) == len(LARGE_PST_INITIAL_DATA) + len(LARGE_PST_ADD_DATA)
     for itm in LARGE_PST_REMOVE_DATA:
         pst.remove(itm)
         assert_rb_tree(pst._root)
-
+    assert len(pst) == len(LARGE_PST_INITIAL_DATA) + len(LARGE_PST_ADD_DATA) - len(LARGE_PST_REMOVE_DATA)
     for itm in LARGE_PST_HEAP_POP_DATA:
         assert itm == pst.heap_pop()
         assert_rb_tree(pst._root)

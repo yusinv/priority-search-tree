@@ -92,6 +92,7 @@ class PrioritySearchTree:
         self._root: Node = Node.NULL_NODE
         self.tree_key = tree_key
         self.heap_key = heap_key
+        self._len: int = 0
 
         if iterable:
             sn = sorted(iterable, key=self.tree_key)
@@ -134,6 +135,7 @@ class PrioritySearchTree:
                 tree_nodes = new_nodes
 
             self._root = tree_nodes[0][0]
+            self._len = sn_len
 
     def heap_get_max(self) -> _V:
         """
@@ -186,6 +188,7 @@ class PrioritySearchTree:
         """
         if self._root == Node.NULL_NODE:
             self._root = Node(heap_value=value, tree_value=value, color=0)
+            self._len = 1
             return
 
         value_tree_key = self.tree_key(value)
@@ -229,6 +232,7 @@ class PrioritySearchTree:
 
         self._push_down(self._root, value)
         self._fix_insert(new_leaf_node)
+        self._len += 1
 
     def remove(self, value: _V) -> None:
         """
@@ -266,6 +270,7 @@ class PrioritySearchTree:
 
         if leaf_node == self._root:
             self._root = Node.NULL_NODE
+            self._len = 0
             return
 
         self._push_up(heap_node)
@@ -286,6 +291,8 @@ class PrioritySearchTree:
 
         if cut_node.color == 0:
             self._fix_delete(fix_node)
+
+        self._len -= 1
 
     def _fix_delete(self, node: Node) -> None:
         while node != self._root and node.color == 0:
@@ -460,3 +467,6 @@ class PrioritySearchTree:
 
         y.set_left(x)
         self._push_up(x)
+
+    def __len__(self):
+        return self._len
