@@ -28,15 +28,15 @@ replace = "/v{new_version}...main"
 
 [[tool.bumpversion.files]]
 filename = "setup.py"
-search = "version={current_version}"
-replace = "version={new_version}"
+search = "version=\"{current_version}\""
+replace = "version=\"{new_version}\""
 
 [[tool.bumpversion.files]]
 filename = "docs/conf.py"
-search = "version = release = {current_version}"
-replace = "version = release = {new_version}"
+search = "version = release = \"{current_version}\""
+replace = "version = release = \"{new_version}\""
 
 [[tool.bumpversion.files]]
 filename = "src/priority_search_tree/__init__.py"
-search = "__version__ = {current_version}"
-replace = "__version__ = {new_version}"
+search = "__version__ = \"{current_version}\""
+replace = "__version__ = \"{new_version}\""
