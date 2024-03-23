@@ -2,4 +2,4 @@
 Authors
 =======
 
-* Priority Search Tree
+* Valentin Yusin

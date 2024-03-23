@@ -49,9 +49,15 @@ Overview
 
 .. end-badges
 
-The priority search tree is data structure that used to store a set of 2-dimensional points ordered by priority and by a key value. This is accomplished by creating a hybrid of a priority queue and a binary search tree.
+The priority search tree (PST) is data structure with the following properties:
 
-* Free software: GNU Lesser General Public License v3 or later (LGPLv3+)
+* Items are stored in binary search tree (red-black tree in this case) using ``tree_key(value)``  function as a key.
+* Maintains max heap properties using ``heap_key(value)`` function as key.
+* Ability to perform efficient  *O(log(N)+K)* 3-sided search (finds items with ``tree_key`` in interval **[min_tree_key,max_tree_key]** and ``heap_key`` is grater or equal to **bottom_heap_key**).
+
+For example PST can store 2 dimensional points P(X,Y) using X coordinate as ``tree_key`` and Y coordinate as ``heap_key``.  Such PST can perform 3 sided search to find points with X in [X_MIN,X_MAX] and Y >= Y_BOTTOM.
+
+Free software: GNU Lesser General Public License v3 or later (LGPLv3+)
 
 Installation
 ============
@@ -78,20 +84,3 @@ Development
 To run all the tests run::
 
     tox
-
-Note, to combine the coverage data from all the tox environments run:
-
-.. list-table::
-    :widths: 10 90
-    :stub-columns: 1
-
-    - - Windows
-      - ::
-
-            set PYTEST_ADDOPTS=--cov-append
-            tox
-
-    - - Other
-      - ::
-
-            PYTEST_ADDOPTS=--cov-append tox

@@ -40,5 +40,7 @@ html_sidebars = {
 html_short_title = f"{project}-{version}"
 
 napoleon_use_ivar = True
-napoleon_use_rtype = False
-napoleon_use_param = False
+napoleon_use_rtype = True
+napoleon_use_param = True
+napoleon_preprocess_types = True
+napoleon_custom_sections = [("Complexity", "returns_style")]

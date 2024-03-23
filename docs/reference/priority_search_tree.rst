@@ -7,5 +7,3 @@ priority_search_tree
 
 .. automodule:: priority_search_tree
     :members:
-    :undoc-members:
-    :special-members: __init__, __len__

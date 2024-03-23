@@ -13,6 +13,31 @@ _SupportsRichComparisonT = TypeVar("_SupportsRichComparisonT")
 
 
 class PrioritySearchTree:
+    """
+    Class that represents Priority search tree.
+
+    Example::
+
+        # create new tree
+        pst = PrioritySearchTree([(1,1),(2,2)])
+        # add item to the tree
+        pst.add((3,3))
+        # perform 3 sided query
+        result = pst.query((0,0),(4,0),(0,2))
+
+    Args:
+        iterable (Iterable): Initial values to build priority search tree. The default value is ``None``.
+        tree_key (Callable): Specifies a function of one argument that is used to extract a *tree* comparison key
+            from each element (for example, ``tree_key=str.lower``). The default value is ``tree_key=lambda x: x``
+        heap_key (Callable): Specifies a function of one argument that is used to extract a *heap* comparison key
+            from each element (for example, ``tree_key=str.lower``). The default value is ``tree_key=lambda x: x[1:]``
+
+    Raises:
+        ValueError: in case if iterable contains values with not unique tree_key
+
+    Complexity:
+        O(N*log(N)) where **N** is number of items to be added to new PST
+    """
 
     def _push_down(self, node: Node, value: _V) -> None:
         while node != Node.NULL_NODE:
@@ -111,22 +136,35 @@ class PrioritySearchTree:
             self._root = tree_nodes[0][0]
 
     def heap_get_max(self) -> _V:
-        """Get item with the largest heap_key.
-
-        Return the item with the largest heap_key from the PST, Complexity is O(1).
+        """
+        Return the item with the largest **heap_key** from the PST.
 
         Returns:
-            item with the largest heap_key
+            item with the largest **heap_key**
 
         Raises:
-            IndexError If the PST is empty
+            IndexError: If the PST is empty
 
+        Complexity:
+            O(1)
         """
         if self._root == Node.NULL_NODE:
             raise IndexError
         return self._root.heap_value
 
     def heap_pop(self) -> _V:
+        """
+        Remove and return the item with the largest **heap_key** from the PST.
+
+        Returns:
+            item with the largest **heap_key**
+
+        Raises:
+            IndexError: If the PST is empty
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+        """
         if self._root == Node.NULL_NODE:
             raise IndexError
         result = self._root.heap_value
@@ -134,6 +172,18 @@ class PrioritySearchTree:
         return result
 
     def add(self, value: _V) -> None:
+        """
+        Add new item to PST.
+
+        Args:
+            value: Value to insert into PST
+
+        Raises:
+            ValueError: in case if value with **tree_key** already exists in PST
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+        """
         if self._root == Node.NULL_NODE:
             self._root = Node(heap_value=value, tree_value=value, color=0)
             return
@@ -181,6 +231,18 @@ class PrioritySearchTree:
         self._fix_insert(new_leaf_node)
 
     def remove(self, value: _V) -> None:
+        """
+        Remove item from PST.
+
+        Args:
+            value: Value to remove from PST
+
+        Raises:
+            ValueError: in case if value not exists in PST
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+        """
         node = self._root
         value_tree_key = self.tree_key(value)
         value_heap_key = self.heap_key(value)
@@ -285,6 +347,24 @@ class PrioritySearchTree:
             u.parent.set_right(v)
 
     def query(self, tree_left: _V, tree_right: _V, heap_bottom: _V) -> [_V]:
+        """Performs 3 sided query on PST.
+
+        This function returns list of items that meet the following criteria:
+            1. items have **tree_key** grater or equal to **tree_key** of tree_left argument
+            2. items have **tree_key** smaller or equal to **tree_key** of tree_right argument
+            3. items have **heap_key** grater or equal to **heap_key** of heap_bottom argument
+
+        Args:
+            tree_left: Left bound for query (**tree_key** is used).
+            tree_right: Right bound for query (**tree_key** is used).
+            heap_bottom: Bottom bound for query (**heap_key** is used).
+
+        Returns:
+            List: list of items that satisfy criteria, or empty list if no items found
+
+        Complexity:
+            O(log(N)+K) where **N** is number of items in PST and **K** is number of reported items
+        """
         result = []
         queue = deque()
         queue.append(self._root)
