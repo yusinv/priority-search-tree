@@ -3,7 +3,7 @@ graft src
 graft ci
 graft tests
 
-include .bumpversion.cfg
+include .bumpversion.toml
 include .coveragerc
 include .editorconfig
 include .github/workflows/build.yml
