@@ -94,6 +94,31 @@ def test_query():
                     if (x_min, 0) <= item <= (x_max, 8) and item[1:] >= (y_min,):
                         query_expected.add(item)
                 assert set(pst.query((x_min, 0), (x_max, 8), (0, y_min))) == query_expected
+                sqr = pst.sorted_query((x_min, 0), (x_max, 8), (0, y_min))
+                assert sqr == sorted(query_expected, key=lambda x: x[1:], reverse=True)
+
+
+def test_sorted_query_limit():
+    items = [(0, 0), (1, 6), (2, 2), (3, 7), (4, 4), (5, 2), (6, 3), (7, 5), (8, 8)]
+    pst = PrioritySearchTree(items)
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=1)
+    assert result == [(8, 8)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=2)
+    assert result == [(8, 8), (3, 7)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=3)
+    assert result == [(8, 8), (3, 7), (1, 6)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=4)
+    assert result == [(8, 8), (3, 7), (1, 6), (7, 5)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=5)
+    assert result == [(8, 8), (3, 7), (1, 6), (7, 5), (4, 4)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=6)
+    assert result == [(8, 8), (3, 7), (1, 6), (7, 5), (4, 4), (6, 3)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=7)
+    assert result == [(8, 8), (3, 7), (1, 6), (7, 5), (4, 4), (6, 3), (2, 2)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=8)
+    assert result == [(8, 8), (3, 7), (1, 6), (7, 5), (4, 4), (6, 3), (2, 2), (5, 2)]
+    result = pst.sorted_query((0, 0), (8, 8), (8, 0), items_limit=0)
+    assert result == [(8, 8), (3, 7), (1, 6), (7, 5), (4, 4), (6, 3), (2, 2), (5, 2), (0, 0)]
 
 
 def test_stress_tester():

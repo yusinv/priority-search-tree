@@ -378,12 +378,12 @@ class PrioritySearchTree:
         while queue:
             node = queue.popleft()
 
-            if node == Node.NULL_NODE:
+            if node == Node.NULL_NODE or node.placeholder:
                 continue
 
             if node.heap_value:
                 if self.heap_key(node.heap_value) >= self.heap_key(heap_bottom):
-                    if self.tree_key(tree_left) <= self.tree_key(node.heap_value) <= self.tree_key(tree_right) and not node.placeholder:
+                    if self.tree_key(tree_left) <= self.tree_key(node.heap_value) <= self.tree_key(tree_right):
                         result.append(node.heap_value)
                 else:
                     continue
@@ -397,6 +397,73 @@ class PrioritySearchTree:
                 queue.append(node.right)
 
         return result
+
+    def sorted_query(self, tree_left: _V, tree_right: _V, heap_bottom: _V, items_limit: int = 0) -> [_V]:
+        """Performs 3 sided query on PST.
+
+        This function returns list of items that meet the following criteria:
+            1. items have **tree_key** grater or equal to **tree_key** of tree_left argument
+            2. items have **tree_key** smaller or equal to **tree_key** of tree_right argument
+            3. items have **heap_key** grater or equal to **heap_key** of heap_bottom argument
+
+        Args:
+            tree_left: Left bound for query (**tree_key** is used).
+            tree_right: Right bound for query (**tree_key** is used).
+            heap_bottom: Bottom bound for query (**heap_key** is used).
+            items_limit (int): Number of items to return. Default value is ``0`` - no limit.
+
+        Returns:
+            List: list of items that satisfy criteria and sorted by **heap_key**
+            (in case of limit, items with largest **heap_key** will be returned), or empty list if no items found
+
+        Complexity:
+            O(log(N)+K*log(K)) where **N** is number of items in PST and **K** is number of returned items
+        """
+        tree_left_key = self.tree_key(tree_left)
+        tree_right_key = self.tree_key(tree_right)
+        heap_bottom_key = self.heap_key(heap_bottom)
+        if items_limit <= 0:
+            items_limit = self._len
+
+        def _query_node(node, limit):
+            result = []
+            if node == Node.NULL_NODE or node.placeholder or limit == 0:
+                return result
+
+            if node.heap_value:
+                if self.heap_key(node.heap_value) >= heap_bottom_key:
+                    if tree_left_key <= self.tree_key(node.heap_value) <= tree_right_key:
+                        result.append(node.heap_value)
+                        limit -= 1
+                else:
+                    return result
+
+            if tree_right_key < self.tree_key(node.tree_value):
+                result.extend(_query_node(node.left, limit))
+            elif tree_left_key >= self.tree_key(node.tree_value):
+                result.extend(_query_node(node.right, limit))
+            else:
+                left = _query_node(node.left, limit)
+                right = _query_node(node.right, limit)
+                # merge
+                i, j = 0, 0
+                while i < len(left) and j < len(right) and len(result) < items_limit:
+                    if self.heap_key(left[i]) >= self.heap_key(right[j]):
+                        result.append(left[i])
+                        i += 1
+                    else:
+                        result.append(right[j])
+                        j += 1
+                while i < len(left) and len(result) < items_limit:
+                    result.append(left[i])
+                    i += 1
+                while j < len(right) and len(result) < items_limit:
+                    result.append(right[j])
+                    j += 1
+
+            return result
+
+        return _query_node(self._root, items_limit)
 
     def _fix_insert(self, node: Node) -> None:
         while node.parent.color == 1:
