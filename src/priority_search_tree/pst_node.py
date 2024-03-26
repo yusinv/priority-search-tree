@@ -6,6 +6,8 @@ _Self = TypeVar("_Self")
 
 
 class Node:
+    __slots__ = ["parent", "left", "right", "placeholder", "color", "heap_value", "tree_value"]
+
     NULL_NODE: _Self = None
 
     def __init__(self, heap_value: Any = None, tree_value: Any = None, placeholder: bool = False, color: int = 1) -> None:

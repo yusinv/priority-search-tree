@@ -21,3 +21,9 @@ Changelog
 * Added __len__ and __contains__ methods.
 * Added clear method.
 * Fixed issue with not unique heap keys
+
+
+0.0.3 (2024-03-26)
+------------------
+
+* Performance improvements
