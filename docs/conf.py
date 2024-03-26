@@ -17,7 +17,7 @@ project = "priority-search-tree"
 year = "2024"
 author = "Valentin Yusin"
 copyright = f"{year}, {author}"
-version = release = "0.0.1"
+version = release = "0.0.2"
 
 pygments_style = "trac"
 templates_path = ["."]

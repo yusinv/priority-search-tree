@@ -41,9 +41,9 @@ Overview
     :alt: Supported implementations
     :target: https://pypi.org/project/priority-search-tree
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/yusinv/priority-search-tree/v0.0.1.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/yusinv/priority-search-tree/v0.0.2.svg
     :alt: Commits since latest release
-    :target: https://github.com/yusinv/priority-search-tree/compare/v0.0.1...main
+    :target: https://github.com/yusinv/priority-search-tree/compare/v0.0.2...main
 
 
 
