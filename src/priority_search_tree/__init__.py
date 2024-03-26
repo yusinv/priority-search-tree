@@ -40,20 +40,47 @@ class PrioritySearchTree:
     """
 
     def _push_down(self, node: Node, value: _V) -> None:
-        while node != Node.NULL_NODE:
-            if node.heap_value is None:
-                node.heap_value = value
-                return
+        if node == Node.NULL_NODE:
+            return
+        if node.heap_value is None:
+            node.heap_value = value
+            return
 
-            if self.heap_key(value) > self.heap_key(node.heap_value):
-                node.heap_value, value = value, node.heap_value
-            elif self.heap_key(value) == self.heap_key(node.heap_value):
-                node.placeholder = False
+        if self.tree_key(node.heap_value) < self.tree_key(node.tree_value):
+            self._push_down(node.left, node.heap_value)
+        else:
+            self._push_down(node.right, node.heap_value)
 
-            if self.tree_key(value) < self.tree_key(node.tree_value):
-                node = node.left
-            else:
-                node = node.right
+        if node.placeholder:
+            node.placeholder = False
+        else:
+            node.heap_value = value
+
+    def _sieve_down(self, node: Node, value: _V) -> None:
+
+        if node.heap_value is None:
+            node.heap_value = value
+            return
+
+        if node.placeholder:
+            node.placeholder = False
+            return
+
+        heap_key_value = self.heap_key(value)
+        tree_key_value = self.tree_key(value)
+
+        if heap_key_value > self.heap_key(node.heap_value):
+            self._push_down(node, value)
+            return
+
+        if heap_key_value == self.heap_key(node.heap_value) and tree_key_value < self.tree_key(node.heap_value):
+            self._push_down(node, value)
+            return
+
+        if tree_key_value < self.tree_key(node.tree_value):
+            self._sieve_down(node.left, value)
+        else:
+            self._sieve_down(node.right, value)
 
     def _push_up(self, node: Node) -> None:
         vl, vr = None, None
@@ -65,7 +92,7 @@ class PrioritySearchTree:
             vr = node.right.heap_value
 
         if vl and vr:
-            if self.heap_key(vl) > self.heap_key(vr):
+            if self.heap_key(vl) >= self.heap_key(vr):
                 node.heap_value = vl
                 self._push_up(node.left)
             else:
@@ -230,7 +257,7 @@ class PrioritySearchTree:
             new_internal_node.heap_value = prev.heap_value
             prev.placeholder = True
 
-        self._push_down(self._root, value)
+        self._sieve_down(self._root, value)
         self._fix_insert(new_leaf_node)
         self._len += 1
 
@@ -246,17 +273,19 @@ class PrioritySearchTree:
 
         Complexity:
             O(log(N)) where **N** is number of items in PST
+
+        Note:
+            this function is using ``tree_key(value)`` to compare the items
         """
         node = self._root
         value_tree_key = self.tree_key(value)
-        value_heap_key = self.heap_key(value)
         heap_node = None
         tree_node = None
         leaf_node = None
 
         while node != Node.NULL_NODE:
             leaf_node = node
-            if heap_node is None and self.tree_key(node.heap_value) == value_tree_key and self.heap_key(node.heap_value) == value_heap_key:
+            if heap_node is None and self.tree_key(node.heap_value) == value_tree_key:
                 heap_node = node
             if tree_node is None and self.tree_key(node.tree_value) == value_tree_key:
                 tree_node = node
@@ -286,7 +315,7 @@ class PrioritySearchTree:
             cut_node = leaf_node.parent
             fix_node = leaf_node.parent.right
 
-        self._push_down(cut_node, cut_node.heap_value)
+        self._push_down(cut_node, None)
         self._transplant(cut_node, fix_node)
 
         if cut_node.color == 0:
@@ -535,5 +564,53 @@ class PrioritySearchTree:
         y.set_left(x)
         self._push_up(x)
 
-    def __len__(self):
+    def __len__(self) -> int:
+        """
+        Implements the built-in function len()
+
+        Returns:
+            int: Number of items in PST.
+
+        Complexity:
+            O(1)
+        """
         return self._len
+
+    def __contains__(self, value) -> bool:
+        """
+        Implements membership test operator.
+
+        Args:
+            value: Value to test for membership
+
+        Returns:
+            bool:  ``True`` if value is in ``self``, ``False`` otherwise.
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+
+        Note:
+            this function is using ``tree_key(value)`` to compare the items
+        """
+        value_tree_key = self.tree_key(value)
+
+        node = self._root
+        while node != Node.NULL_NODE:
+            if value_tree_key < self.tree_key(node.tree_value):
+                node = node.left
+            elif value_tree_key == self.tree_key(node.tree_value):
+                return True
+            else:
+                node = node.right
+
+        return False
+
+    def clear(self) -> None:
+        """
+        Removes **all** items from PST.
+
+        Complexity:
+            O(1)
+        """
+        self._root = Node.NULL_NODE
+        self._len = 0

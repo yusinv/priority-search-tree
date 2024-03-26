@@ -12,6 +12,7 @@ from utils import assert_rb_tree
 def test_empty_pst():
     pst = PrioritySearchTree()
     assert not pst
+    assert (1, 1) not in pst
     result = pst.query((0, 0), (1, 2), (1, 1))
     assert len(result) == 0
     with pytest.raises(ValueError, match="Value not found:"):
@@ -65,6 +66,20 @@ def test_heap_get_max():
     assert pst.heap_get_max() == (5, 5)
     pst.remove((1, 2))
     assert pst.heap_get_max() == (5, 5)
+
+
+def test_contains():
+    items = [(1, 1), (2, 2), (3, 4), (4, 4)]
+    pst = PrioritySearchTree(items, tree_key=lambda x: x[0])
+    for itm in items:
+        assert itm in pst
+
+    # key_tree and heap_tree not in pst
+    assert (5, 5) not in pst
+    # key_tree not in pst and heap_key is
+    assert (5, 4) not in pst
+    # key_tree in pst heap_key is not
+    assert (1, 5) in pst
 
 
 def test_large_pst():
@@ -134,6 +149,35 @@ def test_unique_tree_key():
         PrioritySearchTree([(1, 1), (1, 1)])
 
 
+def test_not_unique_heap_keys():
+    pst = PrioritySearchTree()
+    for i in range(100, -1, -1):
+        pst.add((i, 5))
+    assert_rb_tree(pst._root)
+    result = pst.sorted_query((0, 0), (1000, 0), (0, 0))
+    assert len(result) == len(pst)
+    for i, r in enumerate(result):
+        assert r[0] == i
+
+    pst.clear()
+    for i in range(100):
+        pst.add((i, 5))
+    assert_rb_tree(pst._root)
+    result = pst.sorted_query((0, 0), (1000, 0), (0, 0))
+    assert len(result) == len(pst)
+    for i, r in enumerate(result):
+        assert r[0] == i
+
+    pst.clear()
+    for itm in [(0, 5), (1, 5), (2, 5), (3, 5), (4, 5), (5, 5), (6, 5), (7, 5), (8, 5)]:
+        pst.add(itm)
+    assert_rb_tree(pst._root)
+    result = pst.sorted_query((0, 0), (1000, 0), (0, 0))
+    assert len(result) == len(pst)
+    for i, r in enumerate(result):
+        assert r[0] == i
+
+
 def test_custom_keys():
     class Point:
         def __init__(self, x: int, y: int):
@@ -155,8 +199,7 @@ def test_custom_keys():
     pst.remove(Point(2, 2))
 
     # same tree_key different hash_key
-    with pytest.raises(ValueError, match="Value not found:"):
-        pst.remove(Point(4, 1))
+    pst.remove(Point(4, 1))
 
     # different tree_key same hash_key
     with pytest.raises(ValueError, match="Value not found:"):
@@ -170,5 +213,4 @@ def test_custom_keys():
 
     assert pst.heap_pop().y == 6
     assert pst.heap_pop().y == 6
-    assert pst.heap_pop().y == 4
     assert pst.heap_pop().y == 1

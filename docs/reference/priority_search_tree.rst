@@ -7,3 +7,4 @@ priority_search_tree
 
 .. automodule:: priority_search_tree
     :members:
+    :special-members:
