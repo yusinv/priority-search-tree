@@ -89,12 +89,12 @@ def tree_repr(tree: PrioritySearchTree, indent_width: int = 4) -> str:
     """
 
     def _tree_repr(node, indent, symbol) -> []:
-        result = []
+        tmp = []
         if node and node != Node.NULL_NODE:
-            result.append(f"{symbol}{'─' * indent_width}{_node_repr(node)}")
-            result.extend(_tree_repr(node.left, f"{indent}│{' ' * indent_width}", f"{indent}├"))
-            result.extend(_tree_repr(node.right, f"{indent} {' ' * indent_width}", f"{indent}└"))
-        return result
+            tmp.append(f"{symbol}{'─' * indent_width}{_node_repr(node)}")
+            tmp.extend(_tree_repr(node.left, f"{indent}│{' ' * indent_width}", f"{indent}├"))
+            tmp.extend(_tree_repr(node.right, f"{indent} {' ' * indent_width}", f"{indent}└"))
+        return tmp
 
     result = [f"{_node_repr(tree._root)}"]
     result.extend(_tree_repr(tree._root.left, f"│{' ' * indent_width}", "├"))

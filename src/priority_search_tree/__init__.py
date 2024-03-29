@@ -1,5 +1,6 @@
 __version__ = "0.0.2"
 
+from typing import Callable
 from typing import Iterable
 from typing import Optional
 from typing import Tuple
@@ -567,3 +568,212 @@ class PrioritySearchTree:
         """
         self._root = Node.NULL_NODE
         self._len = 0
+
+
+_V = TypeVar("_V")
+
+
+class PrioritySearchSet:
+    """
+    Class that represents Priority search tree.
+
+    Example::
+
+        # create new tree
+        pst = PrioritySearchTree([(1,1),(2,2)])
+        # add item to the tree
+        pst.add((3,3))
+        # perform 3 sided query
+        result = pst.query((0,0),(4,0),(0,2))
+
+    Args:
+        iterable (Iterable): Initial values to build priority search tree. The default value is ``None``.
+        tree_key (Callable): Specifies a function of one argument that is used to extract a *tree* comparison key
+            from each element (for example, ``tree_key=str.lower``). The default value is ``tree_key=lambda x: x``
+        heap_key (Callable): Specifies a function of one argument that is used to extract a *heap* comparison key
+            from each element (for example, ``tree_key=str.lower``). The default value is ``tree_key=lambda x: x[1:]``
+
+    Raises:
+        ValueError: in case if iterable contains values with not unique tree_key
+
+    Complexity:
+        O(N*log(N)) where **N** is number of items to be added to new PST
+    """
+
+    __slots__ = ["_values", "key_func", "priority_func", "_pst"]
+
+    def __init__(
+        self, key_func: Callable[[_V], _KEY], priority_func: Callable[[_V], _PRIORITY], iterable: Optional[Iterable[_V]] = None
+    ) -> None:
+
+        self.key_func = key_func
+        self.priority_func = priority_func
+        self._values = {}
+
+        key_priorities = []
+        if iterable:
+            for item in iterable:
+                key = key_func(item)
+                priority = priority_func(item)
+                self._values[key] = item
+                key_priorities.append((key, priority))
+
+        self._pst = PrioritySearchTree(key_priorities)
+
+    def heap_get_max(self) -> _KEY:
+        """
+        Return the item with the largest **heap_key** from the PST.
+
+        Returns:
+            item with the largest **heap_key**
+
+        Raises:
+            IndexError: If the PST is empty
+
+        Complexity:
+            O(1)
+        """
+        return self._values[self._pst.heap_get_max()]
+
+    def heap_pop(self) -> _KEY:
+        """
+        Remove and return the item with the largest **heap_key** from the PST.
+
+        Returns:
+            item with the largest **heap_key**
+
+        Raises:
+            IndexError: If the PST is empty
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+        """
+        return self._values[self._pst.heap_pop()]
+
+    def add(self, value: _V) -> None:
+        """
+        Add new item to PST.
+
+        Args:
+            value: Value to insert into PST
+
+        Raises:
+            ValueError: in case if value with **tree_key** already exists in PST
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+        """
+        key = self.key_func(value)
+        priority = self.priority_func(value)
+        self._pst.add(key, priority)
+        self._values[key] = priority
+
+    def remove(self, value: _V) -> _V:
+        """
+        Remove item from PST.
+
+        Args:
+            value: Value to remove from PST
+
+        Raises:
+            ValueError: in case if value not exists in PST
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+
+        Note:
+            this function is using ``tree_key(value)`` to compare the items
+        """
+        key = self.key_func(value)
+        self._pst.remove(key)
+        return self._values.pop(key)
+
+    def query(self, left: _V, right: _V, bottom: _V) -> list[_V]:
+        """Performs 3 sided query on PST.
+
+        This function returns list of items that meet the following criteria:
+            1. items have **tree_key** grater or equal to **tree_key** of tree_left argument
+            2. items have **tree_key** smaller or equal to **tree_key** of tree_right argument
+            3. items have **heap_key** grater or equal to **heap_key** of heap_bottom argument
+
+        Args:
+            tree_left: Left bound for query (**tree_key** is used).
+            tree_right: Right bound for query (**tree_key** is used).
+            heap_bottom: Bottom bound for query (**heap_key** is used).
+
+        Returns:
+            List: list of items that satisfy criteria, or empty list if no items found
+
+        Complexity:
+            O(log(N)+K) where **N** is number of items in PST and **K** is number of reported items
+        """
+        key_left = self.key_func(left)
+        key_right = self.key_func(right)
+        priority_bottom = self.priority_func(bottom)
+        return [self._values[x] for x in self._pst.query(key_left, key_right, priority_bottom)]
+
+    def sorted_query(self, left: _V, right: _V, bottom: _V, items_limit: int = 0) -> [_V]:
+        """Performs 3 sided query on PST.
+
+        This function returns list of items that meet the following criteria:
+            1. items have **tree_key** grater or equal to **tree_key** of tree_left argument
+            2. items have **tree_key** smaller or equal to **tree_key** of tree_right argument
+            3. items have **heap_key** grater or equal to **heap_key** of heap_bottom argument
+
+        Args:
+            tree_left: Left bound for query (**tree_key** is used).
+            tree_right: Right bound for query (**tree_key** is used).
+            heap_bottom: Bottom bound for query (**heap_key** is used).
+            items_limit (int): Number of items to return. Default value is ``0`` - no limit.
+
+        Returns:
+            List: list of items that satisfy criteria and sorted by **heap_key**
+            (in case of limit, items with largest **heap_key** will be returned), or empty list if no items found
+
+        Complexity:
+            O(log(N)+K*log(K)) where **N** is number of items in PST and **K** is number of returned items
+        """
+        key_left = self.key_func(left)
+        key_right = self.key_func(right)
+        priority_bottom = self.priority_func(bottom)
+        return [self._values[x] for x in self._pst.sorted_query(key_left, key_right, priority_bottom, items_limit)]
+
+    def __len__(self) -> int:
+        """
+        Implements the built-in function len()
+
+        Returns:
+            int: Number of items in PST.
+
+        Complexity:
+            O(1)
+        """
+        return len(self._pst)
+
+    def __contains__(self, item: _V) -> bool:
+        """
+        Implements membership test operator.
+
+        Args:
+            value: Value to test for membership
+
+        Returns:
+            bool:  ``True`` if value is in ``self``, ``False`` otherwise.
+
+        Complexity:
+            O(log(N)) where **N** is number of items in PST
+
+        Note:
+            this function is using ``tree_key(value)`` to compare the items
+        """
+        return self.key_func(item) in self._values
+
+    def clear(self) -> None:
+        """
+        Removes **all** items from PST.
+
+        Complexity:
+            O(1)
+        """
+        self._pst.clear()
+        self._values.clear()

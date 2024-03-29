@@ -9,8 +9,8 @@ def test_node_init():
 
 
 def test_node_set_left():
-    p_node: Node = Node(1, 1)
-    c_node: Node = Node(2, 2)
+    p_node: Node = Node(1, (4, 1))
+    c_node: Node = Node(2, (7, 2))
     p_node.set_left(c_node)
     assert p_node.left == c_node
     assert c_node.parent == p_node
@@ -19,8 +19,8 @@ def test_node_set_left():
 
 
 def test_node_set_right():
-    p_node: Node = Node(1, 1)
-    c_node: Node = Node(2, 2)
+    p_node: Node = Node(1, (3, 1))
+    c_node: Node = Node(2, (5, 2))
     p_node.set_right(c_node)
     assert p_node.right == c_node
     assert c_node.parent == p_node
