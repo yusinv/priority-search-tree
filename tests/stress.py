@@ -25,12 +25,13 @@ def generate_items(count: int, **kwargs) -> Iterable:
 def stress_test():
     print()
     items = {}
-    pst = PrioritySearchTree(tree_key=tree_key_func, heap_key=heap_key_func)
+    pst = PrioritySearchTree()
     for cycle in range(NUM_OF_CYCLES):
         items_count = random.randrange(NUM_OF_ITEMS - len(items))
         for item in generate_items(items_count, cycle=cycle):
-            pst.add(item)
-            items[tree_key_func(item)] = item
+            key = tree_key_func(item)
+            pst.add(key, heap_key_func(item))
+            items[key] = item
 
         assert_rb_tree(pst._root)
 
@@ -45,40 +46,36 @@ def stress_test():
             x_min, x_max = x_max, x_min
         y_min = random.choice(lk)
 
-        query_expected = []
+        tmp = []
         for item_tree_key, item in items.items():
             if x_min <= item_tree_key <= x_max and heap_key_func(item) >= heap_key_func(items[y_min]):
-                query_expected.append(item)
+                tmp.append(item)
 
-        query_result = pst.query(items[x_min], items[x_max], items[y_min])
+        query_expected = [tree_key_func(x) for x in sorted(tmp, key=lambda x: (heap_key_func(x), tree_key_func(x)), reverse=True)]
 
-        query_result.sort(key=tree_key_func)
-        query_result.sort(key=heap_key_func, reverse=True)
-        query_expected.sort(key=tree_key_func)
-        query_expected.sort(key=heap_key_func, reverse=True)
-
+        query_result = pst.query(x_min, x_max, heap_key_func(items[y_min]))
         assert len(query_result) == len(query_expected)
-        assert query_result == query_expected
-        assert pst.sorted_query(items[x_min], items[x_max], items[y_min]) == query_expected
+        assert set(query_result) == set(query_expected)
+        assert pst.sorted_query(x_min, x_max, heap_key_func(items[y_min])) == query_expected
 
         for item in query_result:
             assert item in pst
             pst.remove(item)
             assert item not in pst
-            items.pop(tree_key_func(item))
+            items.pop(item)
 
         assert_rb_tree(pst._root)
 
         if pst:
             item = pst.heap_pop()
-            items.pop(tree_key_func(item))
+            items.pop(item)
             assert_rb_tree(pst._root)
 
         print(f"iter {cycle} processed. items {len(items)} in tree")
 
 
-# if __name__ == "__main__":
-#     ITEM_LIMITS = 10
-#     NUM_OF_ITEMS = 10000
-#     NUM_OF_CYCLES = 500
-#     stress_test()
+if __name__ == "__main__":
+    ITEM_LIMITS = 10
+    NUM_OF_ITEMS = 100000
+    NUM_OF_CYCLES = 500
+    stress_test()

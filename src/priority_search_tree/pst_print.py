@@ -55,12 +55,12 @@ class _Style(Enum):
 
 def _node_repr(node: Node) -> str:
     if node.color == 0:
-        if node.heap_value == Node.PLACEHOLDER_VALUE:
+        if node.heap_key[0] == Node.PLACEHOLDER_VALUE:
             style = _Style.STRIKETHROUGH_WHITE
         else:
             style = _Style.WHITE
     else:
-        if node.heap_value == Node.PLACEHOLDER_VALUE:
+        if node.heap_key[0] == Node.PLACEHOLDER_VALUE:
             style = _Style.STRIKETHROUGH_RED
         else:
             style = _Style.RED
@@ -68,11 +68,11 @@ def _node_repr(node: Node) -> str:
     if node == Node.NULL_NODE:
         return f"{_Style.WHITE}[NULL_NODE]{_Style.RESET}"
     else:
-        if node.heap_value == Node.PLACEHOLDER_VALUE:
-            return f"{style}{node.tree_value}:[NULL_VALUE]{_Style.RESET}"
+        if node.heap_key[0] == Node.PLACEHOLDER_VALUE:
+            return f"{style}{node.tree_key}:[NULL_VALUE]{_Style.RESET}"
 
         else:
-            return f"{style}{node.tree_value}:{node.heap_value}{_Style.RESET}"
+            return f"{style}{node.tree_key}:{node.heap_key}{_Style.RESET}"
 
 
 def tree_repr(tree: PrioritySearchTree, indent_width: int = 4) -> str:

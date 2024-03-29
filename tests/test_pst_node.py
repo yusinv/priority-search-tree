@@ -2,9 +2,9 @@ from priority_search_tree import Node
 
 
 def test_node_init():
-    node = Node(1, 2)
-    assert node.heap_value == 1
-    assert node.tree_value == 2
+    node = Node(1, (2, 1))
+    assert node.tree_key == 1
+    assert node.heap_key == (2, 1)
     assert node.color == 1
 
 
