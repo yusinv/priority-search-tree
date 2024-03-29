@@ -2,10 +2,9 @@ from priority_search_tree import Node
 
 
 def test_node_init():
-    node = Node(1, 2, False)
+    node = Node(1, 2)
     assert node.heap_value == 1
     assert node.tree_value == 2
-    assert node.placeholder is False
     assert node.color == 1
 
 

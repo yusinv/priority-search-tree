@@ -6,15 +6,15 @@ _Self = TypeVar("_Self")
 
 
 class Node:
-    __slots__ = ["parent", "left", "right", "placeholder", "color", "heap_value", "tree_value"]
+    __slots__ = ["parent", "left", "right", "color", "heap_value", "tree_value"]
 
     NULL_NODE: _Self = None
+    PLACEHOLDER_VALUE: object = None
 
-    def __init__(self, heap_value: Any = None, tree_value: Any = None, placeholder: bool = False, color: int = 1) -> None:
+    def __init__(self, heap_value: Any, tree_value: Any, color: int = 1) -> None:
         self.parent: Optional[_Self] = None
         self.left: _Self = self.NULL_NODE
         self.right: _Self = self.NULL_NODE
-        self.placeholder: bool = placeholder
         self.color: int = color
         self.heap_value: Any = heap_value
         self.tree_value: Any = tree_value
@@ -30,4 +30,5 @@ class Node:
         self.right = right_node
 
 
-Node.NULL_NODE = Node(color=0, placeholder=True)
+Node.PLACEHOLDER_VALUE = object()
+Node.NULL_NODE = Node(color=0, tree_value=Node.PLACEHOLDER_VALUE, heap_value=Node.PLACEHOLDER_VALUE)

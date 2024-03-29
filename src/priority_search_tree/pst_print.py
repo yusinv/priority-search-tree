@@ -21,18 +21,18 @@ Example:
         │    ├────(2, 2):(2, 2)
         │    │    ├────(1, 1):(1, 1)
         │    │    │    ├────(0, 0):(0, 0)
-        │    │    │    └────(1, 1):(1, 1)
-        │    │    └────(2, 2):(2, 2)
+        │    │    │    └────(1, 1):[NULL_VALUE]
+        │    │    └────(2, 2):[NULL_VALUE]
         │    └────(4, 3):(4, 3)
-        │         ├────(3, 6):(3, 6)
-        │         └────(4, 3):(4, 3)
+        │         ├────(3, 6):[NULL_VALUE]
+        │         └────(4, 3):[NULL_VALUE]
         └────(7, 8):(8, 7)
              ├────(6, 5):(6, 5)
              │    ├────(5, 4):(5, 4)
-             │    └────(6, 5):(6, 5)
-             └────(8, 7):None
-                  ├────(7, 8):(7, 8)
-                  └────(8, 7):(8, 7)
+             │    └────(6, 5):[NULL_VALUE]
+             └────(8, 7):[NULL_VALUE]
+                  ├────(7, 8):[NULL_VALUE]
+                  └────(8, 7):[NULL_VALUE]
 
 """
 
@@ -55,12 +55,12 @@ class _Style(Enum):
 
 def _node_repr(node: Node) -> str:
     if node.color == 0:
-        if node.placeholder:
+        if node.heap_value == Node.PLACEHOLDER_VALUE:
             style = _Style.STRIKETHROUGH_WHITE
         else:
             style = _Style.WHITE
     else:
-        if node.placeholder:
+        if node.heap_value == Node.PLACEHOLDER_VALUE:
             style = _Style.STRIKETHROUGH_RED
         else:
             style = _Style.RED
@@ -68,7 +68,11 @@ def _node_repr(node: Node) -> str:
     if node == Node.NULL_NODE:
         return f"{_Style.WHITE}[NULL_NODE]{_Style.RESET}"
     else:
-        return f"{style}{node.tree_value}:{node.heap_value}{_Style.RESET}"
+        if node.heap_value == Node.PLACEHOLDER_VALUE:
+            return f"{style}{node.tree_value}:[NULL_VALUE]{_Style.RESET}"
+
+        else:
+            return f"{style}{node.tree_value}:{node.heap_value}{_Style.RESET}"
 
 
 def tree_repr(tree: PrioritySearchTree, indent_width: int = 4) -> str:

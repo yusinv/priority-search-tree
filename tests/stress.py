@@ -1,4 +1,6 @@
 import random
+from typing import Any
+from typing import Iterable
 
 from priority_search_tree import PrioritySearchTree
 from utils import assert_rb_tree
@@ -7,58 +9,76 @@ ITEM_LIMITS = 100000
 NUM_OF_ITEMS = 500
 NUM_OF_CYCLES = 15
 
-GEN_COUNTER = 0
+
+def tree_key_func(item: Any) -> Any:
+    return id(item)
 
 
-def generate_items(items_count):
-    global GEN_COUNTER
-    result = list(
-        zip(
-            random.sample(range(ITEM_LIMITS), k=items_count),
-            random.sample(range(ITEM_LIMITS), k=items_count),
-            range(GEN_COUNTER, GEN_COUNTER + items_count),
-        )
-    )
-    GEN_COUNTER += items_count
-    return result
+def heap_key_func(item: Any) -> Any:
+    return item[::-1]
+
+
+def generate_items(count: int, **kwargs) -> Iterable:
+    return ((kwargs["cycle"], val) for val in random.choices(range(ITEM_LIMITS), k=count))
 
 
 def stress_test():
     print()
-    items = set()
-    pst = PrioritySearchTree()
+    items = {}
+    pst = PrioritySearchTree(tree_key=tree_key_func, heap_key=heap_key_func)
     for cycle in range(NUM_OF_CYCLES):
-        items_to_add = random.randrange(NUM_OF_ITEMS - len(items))
-        for item in generate_items(items_to_add):
+        items_count = random.randrange(NUM_OF_ITEMS - len(items))
+        for item in generate_items(items_count, cycle=cycle):
             pst.add(item)
-            items.add(item)
-            assert_rb_tree(pst._root)
+            items[tree_key_func(item)] = item
 
-        x_min = (random.randrange(ITEM_LIMITS), -1, -1)
-        x_max = (random.randrange(x_min[0], ITEM_LIMITS), -1, -1)
-        y_min = (0, random.randrange(ITEM_LIMITS), -1)
-        # print(x_min,x_max,y_min)
+        assert_rb_tree(pst._root)
 
-        query_expected = set()
-        for item in items:
-            if x_min <= item <= x_max and item[1:] >= y_min[1:]:
-                query_expected.add(item)
+        if not items:
+            print("skipped due to empty list")
+            continue
 
-        items_to_delete = pst.query(x_min, x_max, y_min)
-        set_to_delete = set(items_to_delete)
-        assert len(items_to_delete) == len(set_to_delete)
-        assert set_to_delete == query_expected
+        lk = list(items.keys())
+        x_min = random.choice(lk)
+        x_max = random.choice(lk)
+        if x_min > x_max:
+            x_min, x_max = x_max, x_min
+        y_min = random.choice(lk)
 
-        for item in items_to_delete:
+        query_expected = []
+        for item_tree_key, item in items.items():
+            if x_min <= item_tree_key <= x_max and heap_key_func(item) >= heap_key_func(items[y_min]):
+                query_expected.append(item)
+
+        query_result = pst.query(items[x_min], items[x_max], items[y_min])
+
+        query_result.sort(key=tree_key_func)
+        query_result.sort(key=heap_key_func, reverse=True)
+        query_expected.sort(key=tree_key_func)
+        query_expected.sort(key=heap_key_func, reverse=True)
+
+        assert len(query_result) == len(query_expected)
+        assert query_result == query_expected
+        assert pst.sorted_query(items[x_min], items[x_max], items[y_min]) == query_expected
+
+        for item in query_result:
+            assert item in pst
             pst.remove(item)
+            assert item not in pst
+            items.pop(tree_key_func(item))
+
+        assert_rb_tree(pst._root)
+
+        if pst:
+            item = pst.heap_pop()
+            items.pop(tree_key_func(item))
             assert_rb_tree(pst._root)
-            items.remove(item)
 
         print(f"iter {cycle} processed. items {len(items)} in tree")
 
 
 # if __name__ == "__main__":
-#     ITEM_LIMITS = 100000
+#     ITEM_LIMITS = 10
 #     NUM_OF_ITEMS = 10000
-#     NUM_OF_CYCLES = 5000
+#     NUM_OF_CYCLES = 500
 #     stress_test()

@@ -1,6 +1,5 @@
 __version__ = "0.0.2"
 
-from collections import deque
 from typing import Callable
 from typing import Iterable
 from typing import Optional
@@ -39,10 +38,11 @@ class PrioritySearchTree:
         O(N*log(N)) where **N** is number of items to be added to new PST
     """
 
+    __slots__ = ["_root", "_len", "tree_key", "heap_key"]
+
     def _push_down(self, node: Node, value: _V) -> None:
-        if node == Node.NULL_NODE:
-            return
-        if node.heap_value is None:
+
+        if node.heap_value == Node.PLACEHOLDER_VALUE:
             node.heap_value = value
             return
 
@@ -51,19 +51,12 @@ class PrioritySearchTree:
         else:
             self._push_down(node.right, node.heap_value)
 
-        if node.placeholder:
-            node.placeholder = False
-        else:
-            node.heap_value = value
+        node.heap_value = value
 
     def _sieve_down(self, node: Node, value: _V) -> None:
 
-        if node.heap_value is None:
+        if node.heap_value == Node.PLACEHOLDER_VALUE:
             node.heap_value = value
-            return
-
-        if node.placeholder:
-            node.placeholder = False
             return
 
         heap_key_value = self.heap_key(value)
@@ -83,32 +76,25 @@ class PrioritySearchTree:
             self._sieve_down(node.right, value)
 
     def _push_up(self, node: Node) -> None:
-        vl, vr = None, None
+        if node.heap_value == Node.PLACEHOLDER_VALUE:
+            return
 
-        if not node.left.placeholder:
-            vl = node.left.heap_value
-
-        if not node.right.placeholder:
-            vr = node.right.heap_value
-
-        if vl and vr:
-            if self.heap_key(vl) >= self.heap_key(vr):
-                node.heap_value = vl
-                self._push_up(node.left)
-            else:
-                node.heap_value = vr
-                self._push_up(node.right)
-        elif vl:
-            node.heap_value = vl
-            self._push_up(node.left)
-        elif vr:
-            node.heap_value = vr
+        if node.left.heap_value == Node.PLACEHOLDER_VALUE:
+            node.heap_value = node.right.heap_value
             self._push_up(node.right)
+            return
+
+        if node.right.heap_value == Node.PLACEHOLDER_VALUE:
+            node.heap_value = node.left.heap_value
+            self._push_up(node.left)
+            return
+
+        if self.heap_key(node.left.heap_value) >= self.heap_key(node.right.heap_value):
+            node.heap_value = node.left.heap_value
+            self._push_up(node.left)
         else:
-            if node.left == Node.NULL_NODE and node.right == Node.NULL_NODE:
-                node.placeholder = True
-            else:
-                node.heap_value = None
+            node.heap_value = node.right.heap_value
+            self._push_up(node.right)
 
     def __init__(
         self,
@@ -139,7 +125,7 @@ class PrioritySearchTree:
                 ln = Node(tree_value=self.tree_key(value), heap_value=value)
                 value = next(sn_iter)
                 rn = Node(tree_value=self.tree_key(value), heap_value=value)
-                pn = Node(tree_value=rn.tree_value, color=0)
+                pn = Node(tree_value=rn.tree_value, heap_value=value, color=0)
                 pn.set_left(ln)
                 pn.set_right(rn)
                 self._push_up(pn)
@@ -154,7 +140,7 @@ class PrioritySearchTree:
                 for i in range(0, len(tree_nodes), 2):
                     ln, ln_min, ln_max = tree_nodes[i]
                     rn, rn_min, rn_max = tree_nodes[i + 1]
-                    pn = Node(tree_value=rn_min, color=0)
+                    pn = Node(tree_value=rn_min, heap_value=ln.heap_value, color=0)
                     pn.set_left(ln)
                     pn.set_right(rn)
                     self._push_up(pn)
@@ -231,34 +217,19 @@ class PrioritySearchTree:
             else:
                 node = node.right
 
-        new_internal_node = Node(color=prev.color)
-        new_leaf_node = Node(tree_value=value_tree_key, heap_value=value, placeholder=True)
-        prev.color = 1
-
-        if prev.parent:
-            if prev.parent.left == prev:
-                prev.parent.set_left(new_internal_node)
-            else:
-                prev.parent.set_right(new_internal_node)
-        else:
-            self._root = new_internal_node
-            new_internal_node.color = 0
+        new_placeholder = Node(tree_value=value_tree_key, heap_value=Node.PLACEHOLDER_VALUE)
+        prev_placeholder = Node(tree_value=prev.tree_value, heap_value=Node.PLACEHOLDER_VALUE)
 
         if value_tree_key < prev.tree_value:
-            new_internal_node.tree_value = prev.tree_value
-            new_internal_node.set_right(prev)
-            new_internal_node.set_left(new_leaf_node)
+            prev.set_right(prev_placeholder)
+            prev.set_left(new_placeholder)
         else:
-            new_internal_node.tree_value = value
-            new_internal_node.set_right(new_leaf_node)
-            new_internal_node.set_left(prev)
-
-        if not prev.placeholder:
-            new_internal_node.heap_value = prev.heap_value
-            prev.placeholder = True
+            prev.tree_value = value_tree_key
+            prev.set_right(new_placeholder)
+            prev.set_left(prev_placeholder)
 
         self._sieve_down(self._root, value)
-        self._fix_insert(new_leaf_node)
+        self._fix_insert(new_placeholder)
         self._len += 1
 
     def remove(self, value: _V) -> None:
@@ -277,30 +248,44 @@ class PrioritySearchTree:
         Note:
             this function is using ``tree_key(value)`` to compare the items
         """
-        node = self._root
         value_tree_key = self.tree_key(value)
-        heap_node = None
-        tree_node = None
-        leaf_node = None
 
+        tree_node = None
+        node = self._root
+        while node != Node.NULL_NODE:
+            if value_tree_key == node.tree_value:
+                tree_node = node
+                break
+            elif value_tree_key < node.tree_value:
+                node = node.left
+            else:
+                node = node.right
+
+        if tree_node is None:
+            raise ValueError(f"Value not found:{value}")
+
+        leaf_node = None
+        node = tree_node
         while node != Node.NULL_NODE:
             leaf_node = node
-            if heap_node is None and self.tree_key(node.heap_value) == value_tree_key:
-                heap_node = node
-            if tree_node is None and node.tree_value == value_tree_key:
-                tree_node = node
             if value_tree_key < node.tree_value:
                 node = node.left
             else:
                 node = node.right
 
-        if heap_node is None:
-            raise ValueError(f"Value not found:{value}")
-
         if leaf_node == self._root:
             self._root = Node.NULL_NODE
             self._len = 0
             return
+
+        heap_node = None
+        node = leaf_node
+        while node:
+            if node.heap_value != Node.PLACEHOLDER_VALUE:
+                if self.tree_key(node.heap_value) == value_tree_key:
+                    heap_node = node
+                    break
+            node = node.parent
 
         self._push_up(heap_node)
 
@@ -401,30 +386,30 @@ class PrioritySearchTree:
         Complexity:
             O(log(N)+K) where **N** is number of items in PST and **K** is number of reported items
         """
+        tree_left_key = self.tree_key(tree_left)
+        tree_right_key = self.tree_key(tree_right)
+        heap_bottom_key = self.heap_key(heap_bottom)
         result = []
-        queue = deque()
-        queue.append(self._root)
-        while queue:
-            node = queue.popleft()
 
-            if node == Node.NULL_NODE or node.placeholder:
-                continue
+        def _query_node(node):
+            if node == Node.NULL_NODE or node.heap_value == Node.PLACEHOLDER_VALUE:
+                return
 
-            if node.heap_value:
-                if self.heap_key(node.heap_value) >= self.heap_key(heap_bottom):
-                    if self.tree_key(tree_left) <= self.tree_key(node.heap_value) <= self.tree_key(tree_right):
-                        result.append(node.heap_value)
-                else:
-                    continue
-
-            if self.tree_key(tree_right) < node.tree_value:
-                queue.append(node.left)
-            elif self.tree_key(tree_left) >= node.tree_value:
-                queue.append(node.right)
+            if self.heap_key(node.heap_value) >= heap_bottom_key:
+                if tree_left_key <= self.tree_key(node.heap_value) <= tree_right_key:
+                    result.append(node.heap_value)
             else:
-                queue.append(node.left)
-                queue.append(node.right)
+                return
 
+            if tree_right_key < node.tree_value:
+                _query_node(node.left)
+            elif tree_left_key >= node.tree_value:
+                _query_node(node.right)
+            else:
+                _query_node(node.left)
+                _query_node(node.right)
+
+        _query_node(self._root)
         return result
 
     def sorted_query(self, tree_left: _V, tree_right: _V, heap_bottom: _V, items_limit: int = 0) -> [_V]:
@@ -454,26 +439,25 @@ class PrioritySearchTree:
         if items_limit <= 0:
             items_limit = self._len
 
-        def _query_node(node, limit):
+        def _sorted_query_node(node, limit):
             result = []
-            if node == Node.NULL_NODE or node.placeholder or limit == 0:
+            if node == Node.NULL_NODE or node.heap_value == Node.PLACEHOLDER_VALUE or limit == 0:
                 return result
 
-            if node.heap_value:
-                if self.heap_key(node.heap_value) >= heap_bottom_key:
-                    if tree_left_key <= self.tree_key(node.heap_value) <= tree_right_key:
-                        result.append(node.heap_value)
-                        limit -= 1
-                else:
-                    return result
-
-            if tree_right_key < self.tree_key(node.tree_value):
-                result.extend(_query_node(node.left, limit))
-            elif tree_left_key >= self.tree_key(node.tree_value):
-                result.extend(_query_node(node.right, limit))
+            if self.heap_key(node.heap_value) >= heap_bottom_key:
+                if tree_left_key <= self.tree_key(node.heap_value) <= tree_right_key:
+                    result.append(node.heap_value)
+                    limit -= 1
             else:
-                left = _query_node(node.left, limit)
-                right = _query_node(node.right, limit)
+                return result
+
+            if tree_right_key < node.tree_value:
+                result.extend(_sorted_query_node(node.left, limit))
+            elif tree_left_key >= node.tree_value:
+                result.extend(_sorted_query_node(node.right, limit))
+            else:
+                left = _sorted_query_node(node.left, limit)
+                right = _sorted_query_node(node.right, limit)
                 # merge
                 i, j = 0, 0
                 while i < len(left) and j < len(right) and len(result) < items_limit:
@@ -492,7 +476,7 @@ class PrioritySearchTree:
 
             return result
 
-        return _query_node(self._root, items_limit)
+        return _sorted_query_node(self._root, items_limit)
 
     def _fix_insert(self, node: Node) -> None:
         while node.parent.color == 1:

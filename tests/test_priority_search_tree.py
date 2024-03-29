@@ -191,25 +191,26 @@ def test_custom_keys():
 
     assert pst.query(Point(1, 1), Point(2, 2), Point(2, 2)) == [items[1]]
     assert pst.query(Point(1, 1), Point(5, 1), Point(1, 6)) == [items[4]]
+    assert pst.sorted_query(Point(1, 1), Point(6, 1), Point(1, 6)) == [items[4], items[5]]
+    assert pst.sorted_query(Point(1, 1), Point(4, 1), Point(1, 1), items_limit=1) == [items[3]]
 
-    # same value object
+    assert items[2] in pst
+    assert Point(10, 10) not in pst
+    assert Point(2, 10) in pst
+
     pst.remove(items[2])
-
-    # same tree_key same hash_key
-    pst.remove(Point(2, 2))
-
-    # same tree_key different hash_key
+    pst.remove(Point(2, 10))
     pst.remove(Point(4, 1))
 
-    # different tree_key same hash_key
     with pytest.raises(ValueError, match="Value not found:"):
         pst.remove(Point(7, 1))
 
-    # different tree_key different hash_key
     with pytest.raises(ValueError, match="Value not found:"):
         pst.remove(Point(7, 7))
 
     assert_rb_tree(pst._root)
+
+    assert pst.heap_get_max().y == 6
 
     assert pst.heap_pop().y == 6
     assert pst.heap_pop().y == 6
