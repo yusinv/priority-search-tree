@@ -4,8 +4,8 @@ from data import LARGE_PST_ADD_DATA
 from data import LARGE_PST_HEAP_POP_DATA
 from data import LARGE_PST_INITIAL_DATA
 from data import LARGE_PST_REMOVE_DATA
+from manual.stress import stress_test
 from priority_search_tree import PrioritySearchTree
-from stress import stress_test
 from utils import assert_rb_tree
 
 
