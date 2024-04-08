@@ -49,15 +49,13 @@ Overview
 
 .. end-badges
 
-The priority search tree (PST) is data structure with the following properties:
+The priority search tree (PST) is data structure (mutable mapping {**key**: **priority**}) with the following properties:
 
-* Items are stored in binary search tree (red-black tree in this case) using ``tree_key(value)``  function as a key.
-* Maintains max heap properties using ``heap_key(value)`` function as key.
-* Ability to perform efficient  *O(log(N)+K)* 3-sided search (finds items with ``tree_key`` in interval **[min_tree_key,max_tree_key]** and ``heap_key`` is grater or equal to **bottom_heap_key**).
+* Keys are stored in binary search tree (red-black tree in this case).
+* Maintains max heap properties (can return **key** with max **priority** in constant time).
+* Ability to perform efficient 3-sided search (finds items with **key** in interval `[min_tree_key,max_tree_key]` and **priority** is grater or equal to `bottom_priority`).
 
-For example PST can store 2 dimensional points P(X,Y) using X coordinate as ``tree_key`` and Y coordinate as ``heap_key``.  Such PST can perform 3 sided search to find points with X in [X_MIN,X_MAX] and Y >= Y_BOTTOM.
-
-Free software: GNU Lesser General Public License v3 or later (LGPLv3+)
+For example PST can store 2 dimensional points `P(X,Y)` using X coordinate as **key** and Y coordinate as **priority**.  Such PST can perform 3 sided search to find points with `X in [X_MIN,X_MAX]` and `Y >= Y_BOTTOM`.
 
 Installation
 ============
@@ -68,7 +66,7 @@ Installation
 
 You can also install the in-development version with::
 
-    pip install https://github.com/yusinv/priority-search-tree/archive/main.zip
+    pip install https://github.com/yusinv/priority-search-tree/archive/develop.zip
 
 
 Documentation
@@ -84,3 +82,9 @@ Development
 To run all the tests run::
 
     tox
+
+
+Licence
+=======
+
+Free software: GNU Lesser General Public License v3 or later (LGPLv3+)

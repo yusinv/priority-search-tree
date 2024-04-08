@@ -10,14 +10,14 @@ To use priority-search-tree in a project::
 	pst = PrioritySearchTree()
 
 	# add items into PST
-	pst.add((1,1))
-	pst.add((2,2))
+	pst[1] = 1
+	pst[2] = 2
 
 	# remove item from PST
-	pst.remove((1,1))
+	del pst[1]
 
 	# query
-	MIN_TREE_KEY_ITEM = (1,1)
-	MAX_TREE_KEY_ITEM = (3,3)
-	BOTTOM_HEAP_ITEM = (2,2)
-	result = pst.query(MIN_TREE_KEY_ITEM,MAX_TREE_KEY_ITEM,BOTTOM_HEAP_ITEM)
+	MIN_KEY = 1
+	MAX_KEY = 3
+	BOTTOM_PRIORITY = 2
+	result = pst.query(MIN_KEY,MAX_KEY,BOTTOM_PRIORITY)

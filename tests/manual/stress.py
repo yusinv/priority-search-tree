@@ -30,7 +30,7 @@ def stress_test():
         items_count = random.randrange(NUM_OF_ITEMS - len(items))
         for item in generate_items(items_count, cycle=cycle):
             key = tree_key_func(item)
-            pst.add(key, heap_key_func(item))
+            pst[key] = heap_key_func(item)
             items[key] = item
 
         assert_rb_tree(pst._root)
@@ -60,15 +60,15 @@ def stress_test():
 
         for item in query_result:
             assert item in pst
-            pst.remove(item)
+            del pst[item]
             assert item not in pst
             items.pop(item)
 
         assert_rb_tree(pst._root)
 
         if pst:
-            item = pst.heap_pop()
-            items.pop(item)
+            k, p = pst.popitem()
+            items.pop(k)
             assert_rb_tree(pst._root)
 
         print(f"iter {cycle} processed. items {len(items)} in tree")

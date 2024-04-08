@@ -23,7 +23,8 @@ Changelog
 * Fixed issue with not unique heap keys
 
 
-0.0.3 (2024-03-26)
+0.1.0 (2024-04-08)
 ------------------
 
-* Performance improvements
+* Refactoring
+* Added PrioritySearchSet class

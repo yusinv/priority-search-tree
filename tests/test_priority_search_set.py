@@ -26,21 +26,22 @@ def test_priority_search_set():
 
     pst.remove(items[2])
     pst.remove(Point(2, 10))
-    pst.remove(Point(4, 1))
+    pst.discard(Point(4, 1))
+    pst.discard(Point(4, 1))
 
-    with pytest.raises(ValueError, match="Key not found:"):
+    with pytest.raises(KeyError, match="Key not found:"):
         pst.remove(Point(7, 1))
 
-    with pytest.raises(ValueError, match="Key not found:"):
+    with pytest.raises(KeyError, match="Key not found:"):
         pst.remove(Point(7, 7))
 
     assert_rb_tree(pst._pst._root)
 
-    assert pst.heap_get_max().y == 6
+    assert pst.get_with_max_priority().y == 6
 
-    assert pst.heap_pop().y == 6
-    assert pst.heap_pop().y == 6
-    assert pst.heap_pop().y == 1
+    assert pst.pop().y == 6
+    assert pst.pop().y == 6
+    assert pst.pop().y == 1
 
     assert not pst
 

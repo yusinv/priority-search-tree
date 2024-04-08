@@ -18,7 +18,7 @@ DATATYPES = ["PrioritySearchSet", "Set", "HeapQ", "Dict", "SortedSet"]
 
 
 def create_pst(items, sub_items, extra_items):
-    PrioritySearchSet(key_func=lambda x: x[0], priority_func=lambda x: x[1], iterable=items)
+    PrioritySearchSet(key_func=pst_key, priority_func=pst_priority, iterable=items)
 
 
 def create_set(items, sub_items, extra_items):
@@ -92,7 +92,7 @@ REMOVE = {"PrioritySearchSet": remove_pst, "Set": remove_set, "HeapQ": remove_he
 
 
 def pop_pst(pst: PrioritySearchSet, sub_items, extra_items):
-    pst.heap_pop()
+    pst.pop()
 
 
 def pop_set(st: set, sub_items, extra_items):

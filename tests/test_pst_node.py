@@ -1,4 +1,4 @@
-from priority_search_tree import Node
+from priority_search_tree.ps_tree_node import Node
 
 
 def test_node_init():
