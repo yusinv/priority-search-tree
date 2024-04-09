@@ -274,10 +274,19 @@ class PrioritySearchSet(MutableSet):
             del self._values[key]
 
     def __iter__(self) -> Iterator:
-        """Create an iterator that iterates values in sorted by **key** order
+        """Create an iterator that iterates values in sorted by **key** ascending
 
         Returns:
-            Iterator: in order iterator
+            Iterator: ascending iterator
         """
         for key in self._pst:
+            yield self._values[key]
+
+    def __reversed__(self) -> Iterator:
+        """Create an iterator that iterates values in sorted by **key** descending
+
+        Returns:
+            Iterator: descending iterator
+        """
+        for key in reversed(self._pst):
             yield self._values[key]

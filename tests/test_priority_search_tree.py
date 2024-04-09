@@ -127,6 +127,11 @@ def test_iterator():
     for e, k in enumerate(pst):
         assert e == k
 
+    value = 8
+    for k in reversed(pst):
+        assert k == value
+        value -= 1
+
 
 def test_sorted_query_limit():
     items = [(0, 0), (1, 6), (2, 2), (3, 7), (4, 4), (5, 2), (6, 3), (7, 5), (8, 8)]

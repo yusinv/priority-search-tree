@@ -657,10 +657,10 @@ class PrioritySearchTree(MutableMapping):
         return heap_node.heap_key[0]
 
     def __iter__(self) -> Iterator:
-        """Create an iterator that iterates **keys** in sorted order
+        """Create an iterator that iterates **keys** sorted by key ascending
 
         Returns:
-            Iterator: in order iterator
+            Iterator: ascending iterator
         """
         stack = []
         current = self._root
@@ -675,5 +675,27 @@ class PrioritySearchTree(MutableMapping):
                     yielded_key = current.tree_key
                     yield yielded_key
                 current = current.right
+            else:
+                break
+
+    def __reversed__(self) -> Iterator:
+        """Create an iterator that iterates **keys** sorted by key descending
+
+        Returns:
+            Iterator: descending iterator
+        """
+        stack = []
+        current = self._root
+        yielded_key = None
+        while True:
+            if current != Node.NULL_NODE:
+                stack.append(current)
+                current = current.right
+            elif stack:
+                current = stack.pop()
+                if current.tree_key != yielded_key:
+                    yielded_key = current.tree_key
+                    yield yielded_key
+                current = current.left
             else:
                 break

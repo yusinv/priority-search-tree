@@ -53,5 +53,10 @@ def test_priority_search_set():
     for p in pss:
         assert p.x == 1
         assert p.y == 4
+
+    for p in reversed(pss):
+        assert p.x == 1
+        assert p.y == 4
+
     pss.clear()
     assert not pss

@@ -34,3 +34,4 @@ Changelog
 0.1.1 (2024-04-09)
 ------------------
 * Added get_with max/min key methods
+* Added __reversed__ method
