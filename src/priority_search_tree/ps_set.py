@@ -74,8 +74,8 @@ class PrioritySearchSet(MutableSet):
 
         self._pst = PrioritySearchTree(key_priorities)
 
-    def get_with_max_priority(self) -> _KEY:
-        """Return the item with the largest **priority** from the PSS.
+    def get_with_max_priority(self) -> _V:
+        """Return an item with the largest **priority** from the PSS.
 
         Returns:
             item with the largest **priority**
@@ -87,6 +87,34 @@ class PrioritySearchSet(MutableSet):
             Amortized `O(1)`
         """
         return self._values[self._pst.get_with_max_priority()]
+
+    def get_with_max_key(self) -> _V:
+        """Returns an item with the largest **key** from the PSS.
+
+        Returns:
+            item with the largest **key**
+
+        Raises:
+            KeyError: If the PSS is empty
+
+        Complexity:
+            `O(log(N))` where **N** is number of items in PSS
+        """
+        return self._values[self._pst.get_with_max_key()]
+
+    def get_with_min_key(self) -> _V:
+        """Returns an item with the smallest **key** from the PSS.
+
+        Returns:
+            item with the smallest **key**
+
+        Raises:
+            KeyError: If the PSS is empty
+
+        Complexity:
+            `O(log(N))` where **N** is number of items in PSS
+        """
+        return self._values[self._pst.get_with_min_key()]
 
     def pop(self) -> _V:
         """Remove and return the item with the largest **priority** from the PSS.

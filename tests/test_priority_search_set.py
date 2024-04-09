@@ -38,6 +38,8 @@ def test_priority_search_set():
     assert_rb_tree(pss._pst._root)
 
     assert pss.get_with_max_priority().y == 6
+    assert pss.get_with_max_key().x == 6
+    assert pss.get_with_min_key().x == 1
 
     assert pss.pop().y == 6
     assert pss.pop().y == 6

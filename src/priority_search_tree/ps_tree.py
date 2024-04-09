@@ -165,6 +165,48 @@ class PrioritySearchTree(MutableMapping):
             raise KeyError
         return self._root.heap_key[1]
 
+    def get_with_max_key(self) -> _KEY:
+        """Returns the largest **key** from PST.
+
+        Returns:
+            largest **key**
+
+        Raises:
+            KeyError: If the PST is empty
+
+        Complexity:
+            `O(log(N))` where **N** is number of items in PST
+        """
+        if self._root == Node.NULL_NODE:
+            raise KeyError
+
+        node = self._root
+        while node.right != node.NULL_NODE:
+            node = node.right
+
+        return node.tree_key
+
+    def get_with_min_key(self) -> _KEY:
+        """Returns the smallest **key** from PST.
+
+        Returns:
+            smallest **key**
+
+        Raises:
+            KeyError: If the PST is empty
+
+        Complexity:
+            `O(log(N))` where **N** is number of items in PST
+        """
+        if self._root == Node.NULL_NODE:
+            raise KeyError
+
+        node = self._root
+        while node.left != node.NULL_NODE:
+            node = node.left
+
+        return node.tree_key
+
     def popitem(self) -> Tuple[_KEY, _PRIORITY]:
         """Remove and return (key, priority) pair from the PST. Pair with max **priority** will be removed.
 

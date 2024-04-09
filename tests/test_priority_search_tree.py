@@ -37,6 +37,10 @@ def test_empty_pst():
     assert len(pst) == 0
     with pytest.raises(KeyError):
         pst.get_with_max_priority()
+    with pytest.raises(KeyError):
+        pst.get_with_max_key()
+    with pytest.raises(KeyError):
+        pst.get_with_min_key()
     for x in pst:
         raise AssertionError(x)
     pst[1] = 5
@@ -49,7 +53,7 @@ def test_empty_pst():
     assert pst.setdefault(2, 1) == 3
 
 
-def test_pop_max_priority():
+def test_popitem():
     items = [[1, 0, 2, 3, 6, 5, 4], [1, 0, 6, 2, 3, 5, 4], [4, 6, 5, 0, 1, 2, 3], [0, 1, 2, 3, 4, 5, 6, 7, 8]]
 
     for itm in items:
@@ -63,9 +67,11 @@ def test_pop_max_priority():
             assert_rb_tree(pst._root)
 
 
-def test_get_max_priority():
+def test_get_methods():
     pst = PrioritySearchTree([(1, 2), (2, 3), (3, 1)])
     assert pst.get_with_max_priority() == 2
+    assert pst.get_with_max_key() == 3
+    assert pst.get_with_min_key() == 1
     pst[0] = 1
     assert pst.get_with_max_priority() == 2
     del pst[2]

@@ -29,3 +29,8 @@ Changelog
 * Refactoring
 * Added PrioritySearchSet class
 * Added __iter__ method
+
+
+0.1.1 (2024-04-09)
+------------------
+* Added get_with max/min key methods
