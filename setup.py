@@ -13,7 +13,7 @@ def read(*names, **kwargs):
 
 setup(
     name="priority-search-tree",
-    version="0.0.2",
+    version="0.1.0",
     license="LGPL-3.0-or-later",
     description="Priority search tree data structure",
     long_description="{}\n{}".format(
