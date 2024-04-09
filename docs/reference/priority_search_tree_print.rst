@@ -1,5 +1,5 @@
 priority_search_tree.print_helpers
-====================
+==================================
 
 .. testsetup::
 

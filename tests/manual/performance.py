@@ -10,7 +10,7 @@ from sortedcontainers import SortedSet
 from priority_search_tree import PrioritySearchSet
 
 NUMBER_OF_ITEMS = [1, 100, 10000, 1000000]
-REPEAT_COUNT = 1
+REPEAT_COUNT = 10
 
 TIMEOUT_SEC = 60
 

@@ -28,3 +28,4 @@ Changelog
 
 * Refactoring
 * Added PrioritySearchSet class
+* Added __iter__ method

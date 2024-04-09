@@ -37,6 +37,8 @@ def test_empty_pst():
     assert len(pst) == 0
     with pytest.raises(KeyError):
         pst.get_with_max_priority()
+    for x in pst:
+        raise AssertionError(x)
     pst[1] = 5
     assert pst.pop(1) == 5
     with pytest.raises(KeyError, match="Key not found:"):
@@ -111,6 +113,13 @@ def test_query():
                 query_expected = [x[0] for x in sorted(tmp, key=lambda x: (x[1], x[0]), reverse=True)]
                 assert set(pst.query(x_min, x_max, y_min)) == set(query_expected)
                 assert pst.sorted_query(x_min, x_max, y_min) == query_expected
+
+
+def test_iterator():
+    items = [(0, 0), (1, 6), (6, 3), (7, 5), (8, 8), (2, 1), (3, 7), (4, 4), (5, 2)]
+    pst = PrioritySearchTree(items)
+    for e, k in enumerate(pst):
+        assert e == k
 
 
 def test_sorted_query_limit():

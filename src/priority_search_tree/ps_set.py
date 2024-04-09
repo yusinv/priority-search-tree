@@ -1,6 +1,7 @@
-import collections
 from typing import Callable
 from typing import Iterable
+from typing import Iterator
+from typing import MutableSet
 from typing import Optional
 from typing import TypeVar
 
@@ -11,13 +12,15 @@ from .ps_tree import PrioritySearchTree
 _V = TypeVar("_V")
 
 
-class PrioritySearchSet(collections.abc.MutableSet):
+class PrioritySearchSet(MutableSet):
     """Mutable Set that maintains priority search tree properties.
 
     PrioritySearchSet can be used to store any type of objects.
     2 functions should be passed to PrioritySearchSet constructor:
-        * ``key_func`` to extract **key** for the object
-        * ``priority_func`` to extract **priority** for the object
+
+    * ``key_func`` to extract **key** for the object
+    * ``priority_func`` to extract **priority** for the object
+
     extracted **key**, **priority** values will be used in underlying PrioritySearchTree
 
     Example::
@@ -138,7 +141,7 @@ class PrioritySearchSet(collections.abc.MutableSet):
         del self._pst[key]
         del self._values[key]
 
-    def query(self, left: _V, right: _V, bottom: _V) -> list[_V]:
+    def query(self, left: _V, right: _V, bottom: _V) -> list:
         """Performs 3 sided query on PSS.
 
         This function returns list of items that meet the following criteria:
@@ -162,7 +165,7 @@ class PrioritySearchSet(collections.abc.MutableSet):
         priority_bottom = self.priority_func(bottom)
         return [self._values[x] for x in self._pst.query(key_left, key_right, priority_bottom)]
 
-    def sorted_query(self, left: _V, right: _V, bottom: _V, items_limit: int = 0) -> [_V]:
+    def sorted_query(self, left: _V, right: _V, bottom: _V, items_limit: int = 0) -> list:
         """Performs sorted 3 sided query on PSS.
 
         This function returns list of items that meet the following criteria:
@@ -242,5 +245,11 @@ class PrioritySearchSet(collections.abc.MutableSet):
             del self._pst[key]
             del self._values[key]
 
-    def __iter__(self):
-        raise NotImplementedError
+    def __iter__(self) -> Iterator:
+        """Create an iterator that iterates values in sorted by **key** order
+
+        Returns:
+            Iterator: in order iterator
+        """
+        for key in self._pst:
+            yield self._values[key]

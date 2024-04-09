@@ -1,5 +1,6 @@
-import collections.abc
 from typing import Iterable
+from typing import Iterator
+from typing import MutableMapping
 from typing import Optional
 from typing import Tuple
 from typing import TypeVar
@@ -10,7 +11,7 @@ _KEY = TypeVar("_KEY")
 _PRIORITY = TypeVar("_PRIORITY")
 
 
-class PrioritySearchTree(collections.abc.MutableMapping):
+class PrioritySearchTree(MutableMapping):
     """Class that represents Priority search tree.
 
     PrioritySearchTree is a mutable mapping that stores **keys** and corresponding **priorities**.
@@ -241,7 +242,7 @@ class PrioritySearchTree(collections.abc.MutableMapping):
         else:
             u.parent.set_right(v)
 
-    def query(self, key_left: _KEY, key_right: _KEY, priority_bottom: _PRIORITY) -> list[_KEY]:
+    def query(self, key_left: _KEY, key_right: _KEY, priority_bottom: _PRIORITY) -> list:
         """Performs 3 sided query on PST.
 
         This function returns list of items that meet the following criteria:
@@ -283,7 +284,7 @@ class PrioritySearchTree(collections.abc.MutableMapping):
         _query_node(self._root)
         return result
 
-    def sorted_query(self, key_left: _KEY, key_right: _KEY, priority_bottom: _PRIORITY, items_limit: int = 0) -> [_KEY]:
+    def sorted_query(self, key_left: _KEY, key_right: _KEY, priority_bottom: _PRIORITY, items_limit: int = 0) -> list:
         """Performs 3 sided query on PST.
 
         This function returns list of items that meet the following criteria:
@@ -613,5 +614,24 @@ class PrioritySearchTree(collections.abc.MutableMapping):
 
         return heap_node.heap_key[0]
 
-    def __iter__(self):
-        raise NotImplementedError
+    def __iter__(self) -> Iterator:
+        """Create an iterator that iterates **keys** in sorted order
+
+        Returns:
+            Iterator: in order iterator
+        """
+        stack = []
+        current = self._root
+        yielded_key = None
+        while True:
+            if current != Node.NULL_NODE:
+                stack.append(current)
+                current = current.left
+            elif stack:
+                current = stack.pop()
+                if current.tree_key != yielded_key:
+                    yielded_key = current.tree_key
+                    yield yielded_key
+                current = current.right
+            else:
+                break
